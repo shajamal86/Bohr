@@ -1,0 +1,530 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Bohr's Atomic Model</title>
+    <style>
+        :root {
+            --nucleus-color: #ff5e62;
+            --orbit-color: rgba(255, 255, 255, 0.15);
+            --background: radial-gradient(circle, #1a1a2e, #16213e);
+            
+            /* Electron colors */
+            --electron-1: #4facfe;
+            --electron-2: #00f2fe;
+            --electron-3: #a6c1ee;
+            --electron-4: #fbc2eb;
+            --electron-5: #ff8a8a;
+            --electron-6: #84fab0;
+            --electron-7: #8fd3f4;
+            --electron-8: #a18cd1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--background);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        h1 {
+            margin: 20px 0;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+        }
+        
+        .atom-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .atom {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, var(--nucleus-color), #d32f2f);
+            border-radius: 50%;
+            box-shadow: 0 0 30px var(--nucleus-color);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .nucleus:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 50px var(--nucleus-color);
+        }
+        
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid var(--orbit-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .orbit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at top, transparent, var(--orbit-color) 20%, transparent 70%);
+            opacity: 0.7;
+        }
+        
+        .orbit-1 {
+            width: 120px;
+            height: 120px;
+            animation: spin 5s linear infinite;
+        }
+        
+        .orbit-2 {
+            width: 220px;
+            height: 220px;
+            animation: spin 8s linear infinite reverse;
+        }
+        
+        .orbit-3 {
+            width: 320px;
+            height: 320px;
+            animation: spin 12s linear infinite;
+        }
+        
+        .electron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform-origin: center;
+            z-index: 5;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px;
+        }
+        
+        /* Electron color classes */
+        .electron-1 { background: radial-gradient(circle, var(--electron-1), #00f2fe); box-shadow: 0 0 15px var(--electron-1); }
+        .electron-2 { background: radial-gradient(circle, var(--electron-2), #a6c1ee); box-shadow: 0 0 15px var(--electron-2); }
+        .electron-3 { background: radial-gradient(circle, var(--electron-3), #fbc2eb); box-shadow: 0 0 15px var(--electron-3); }
+        .electron-4 { background: radial-gradient(circle, var(--electron-4), #ff8a8a); box-shadow: 0 0 15px var(--electron-4); }
+        .electron-5 { background: radial-gradient(circle, var(--electron-5), #84fab0); box-shadow: 0 0 15px var(--electron-5); }
+        .electron-6 { background: radial-gradient(circle, var(--electron-6), #8fd3f4); box-shadow: 0 0 15px var(--electron-6); }
+        .electron-7 { background: radial-gradient(circle, var(--electron-7), #a18cd1); box-shadow: 0 0 15px var(--electron-7); }
+        .electron-8 { background: radial-gradient(circle, var(--electron-8), #4facfe); box-shadow: 0 0 15px var(--electron-8); }
+        
+        /* Fixed electron positions within shells */
+        .orbit-1 .electron {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-60px);
+        }
+        
+        .orbit-2 .electron {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-110px);
+        }
+        
+        .orbit-3 .electron {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-160px);
+        }
+        
+        .electron:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 25px;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .value-display {
+            font-size: 0.9em;
+            color: #aaa;
+            text-align: right;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+        
+        .electron-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            max-width: 200px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .electron-info strong {
+            color: #4facfe;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+            box-shadow: 0 0 5px;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .atom-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .orbit-1 {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .orbit-2 {
+                width: 165px;
+                height: 165px;
+            }
+            
+            .orbit-3 {
+                width: 240px;
+                height: 240px;
+            }
+            
+            /* Adjust electron positions for mobile */
+            .orbit-1 .electron {
+                transform: translate(-50%, -50%) translateY(-45px);
+            }
+            
+            .orbit-2 .electron {
+                transform: translate(-50%, -50%) translateY(-82.5px);
+            }
+            
+            .orbit-3 .electron {
+                transform: translate(-50%, -50%) translateY(-120px);
+            }
+            
+            .controls {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced Bohr's Atomic Model</h1>
+    
+    <div class="container">
+        <div class="atom-container">
+            <div class="atom">
+                <div class="nucleus" title="Nucleus (Protons + Neutrons)"></div>
+                
+                <div class="orbit orbit-1">
+                    <div class="electron electron-1" title="<strong>Electron 1</strong><br>Shell: K<br>Energy Level: 1"></div>
+                </div>
+                
+                <div class="orbit orbit-2">
+                    <div class="electron electron-2" title="<strong>Electron 2</strong><br>Shell: L<br>Energy Level: 2"></div>
+                    <div class="electron electron-3" style="transform: translate(-50%, -50%) rotate(120deg) translateY(-110px) rotate(-120deg);" 
+                         title="<strong>Electron 3</strong><br>Shell: L<br>Energy Level: 2"></div>
+                    <div class="electron electron-4" style="transform: translate(-50%, -50%) rotate(240deg) translateY(-110px) rotate(-240deg);" 
+                         title="<strong>Electron 4</strong><br>Shell: L<br>Energy Level: 2"></div>
+                </div>
+                
+                <div class="orbit orbit-3">
+                    <div class="electron electron-5" title="<strong>Electron 5</strong><br>Shell: M<br>Energy Level: 3"></div>
+                    <div class="electron electron-6" style="transform: translate(-50%, -50%) rotate(90deg) translateY(-160px) rotate(-90deg);" 
+                         title="<strong>Electron 6</strong><br>Shell: M<br>Energy Level: 3"></div>
+                    <div class="electron electron-7" style="transform: translate(-50%, -50%) rotate(180deg) translateY(-160px) rotate(-180deg);" 
+                         title="<strong>Electron 7</strong><br>Shell: M<br>Energy Level: 3"></div>
+                    <div class="electron electron-8" style="transform: translate(-50%, -50%) rotate(270deg) translateY(-160px) rotate(-270deg);" 
+                         title="<strong>Electron 8</strong><br>Shell: M<br>Energy Level: 3"></div>
+                </div>
+                
+                <div class="electron-info"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="speedControl">Animation Speed</label>
+                <input type="range" id="speedControl" min="0.1" max="3" step="0.1" value="1">
+                <div class="value-display"><span id="speedValue">1.0</span>x</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="electronCount">Electrons per Shell</label>
+                <input type="range" id="electronCount" min="1" max="18" step="1" value="1,3,4">
+                <div class="value-display">K: <span id="kValue">1</span>, L: <span id="lValue">3</span>, M: <span id="mValue">4</span></div>
+            </div>
+            
+            <div class="control-group">
+                <label>Element Presets</label>
+                <button id="hydrogenBtn">Hydrogen (1)</button>
+                <button id="heliumBtn">Helium (2)</button>
+                <button id="carbonBtn">Carbon (6)</button>
+                <button id="oxygenBtn">Oxygen (8)</button>
+                <button id="neonBtn">Neon (10)</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Electron Legend</label>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-1); box-shadow: 0 0 5px var(--electron-1);"></span> e1 (K)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-2); box-shadow: 0 0 5px var(--electron-2);"></span> e2 (L)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-3); box-shadow: 0 0 5px var(--electron-3);"></span> e3 (L)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-4); box-shadow: 0 0 5px var(--electron-4);"></span> e4 (L)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-5); box-shadow: 0 0 5px var(--electron-5);"></span> e5 (M)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-6); box-shadow: 0 0 5px var(--electron-6);"></span> e6 (M)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-7); box-shadow: 0 0 5px var(--electron-7);"></span> e7 (M)</div>
+                    <div class="legend-item"><span class="legend-color" style="background: var(--electron-8); box-shadow: 0 0 5px var(--electron-8);"></span> e8 (M)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Speed control
+            const speedControl = document.getElementById('speedControl');
+            const speedValue = document.getElementById('speedValue');
+            const orbits = document.querySelectorAll('.orbit');
+            
+            speedControl.addEventListener('input', function() {
+                const speed = this.value;
+                speedValue.textContent = speed;
+                
+                orbits.forEach((orbit, index) => {
+                    const baseSpeed = [5, 8, 12][index];
+                    orbit.style.animationDuration = `${baseSpeed / speed}s`;
+                });
+            });
+            
+            // Electron count control
+            const electronCount = document.getElementById('electronCount');
+            const kValue = document.getElementById('kValue');
+            const lValue = document.getElementById('lValue');
+            const mValue = document.getElementById('mValue');
+            
+            electronCount.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                let k = 0, l = 0, m = 0;
+                
+                if (value <= 2) {
+                    k = value;
+                } else if (value <= 10) {
+                    k = 2;
+                    l = value - 2;
+                } else {
+                    k = 2;
+                    l = 8;
+                    m = value - 10;
+                }
+                
+                kValue.textContent = k;
+                lValue.textContent = l;
+                mValue.textContent = m;
+                
+                updateElectrons(k, l, m);
+            });
+            
+            function updateElectrons(k, l, m) {
+                // Clear existing electrons (except the first one in each orbit)
+                document.querySelectorAll('.electron').forEach(el => {
+                    if (!el.classList.contains('electron-1') && 
+                        !el.classList.contains('electron-2') && 
+                        !el.classList.contains('electron-5')) {
+                        el.remove();
+                    }
+                });
+                
+                // Add electrons to K shell
+                const orbit1 = document.querySelector('.orbit-1');
+                const orbit1Radius = parseInt(window.getComputedStyle(orbit1).width) / 2;
+                
+                for (let i = 1; i < k; i++) {
+                    const angle = (360 / k) * i;
+                    const electron = createElectron(orbit1, angle, orbit1Radius, i+1, "K");
+                    orbit1.appendChild(electron);
+                }
+                
+                // Add electrons to L shell
+                const orbit2 = document.querySelector('.orbit-2');
+                const orbit2Radius = parseInt(window.getComputedStyle(orbit2).width) / 2;
+                
+                for (let i = 1; i < l; i++) {
+                    const angle = (360 / l) * i;
+                    const electron = createElectron(orbit2, angle, orbit2Radius, i+2, "L");
+                    orbit2.appendChild(electron);
+                }
+                
+                // Add electrons to M shell
+                const orbit3 = document.querySelector('.orbit-3');
+                const orbit3Radius = parseInt(window.getComputedStyle(orbit3).width) / 2;
+                
+                for (let i = 1; i < m; i++) {
+                    const angle = (360 / m) * i;
+                    const electron = createElectron(orbit3, angle, orbit3Radius, i+6, "M");
+                    orbit3.appendChild(electron);
+                }
+            }
+            
+            function createElectron(orbit, angle, radius, electronNumber, shell) {
+                const electron = document.createElement('div');
+                electron.className = `electron electron-${electronNumber}`;
+                electron.title = `<strong>Electron ${electronNumber}</strong><br>Shell: ${shell}<br>Energy Level: ${shell === 'K' ? 1 : shell === 'L' ? 2 : 3}`;
+                electron.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)`;
+                
+                electron.addEventListener('mouseenter', showElectronInfo);
+                electron.addEventListener('mouseleave', hideElectronInfo);
+                
+                return electron;
+            }
+            
+            // Element buttons
+            document.getElementById('hydrogenBtn').addEventListener('click', () => {
+                electronCount.value = 1;
+                electronCount.dispatchEvent(new Event('input'));
+            });
+            
+            document.getElementById('heliumBtn').addEventListener('click', () => {
+                electronCount.value = 2;
+                electronCount.dispatchEvent(new Event('input'));
+            });
+            
+            document.getElementById('carbonBtn').addEventListener('click', () => {
+                electronCount.value = 6;
+                electronCount.dispatchEvent(new Event('input'));
+            });
+            
+            document.getElementById('oxygenBtn').addEventListener('click', () => {
+                electronCount.value = 8;
+                electronCount.dispatchEvent(new Event('input'));
+            });
+            
+            document.getElementById('neonBtn').addEventListener('click', () => {
+                electronCount.value = 10;
+                electronCount.dispatchEvent(new Event('input'));
+            });
+            
+            // Electron info display
+            const electronInfo = document.querySelector('.electron-info');
+            
+            function showElectronInfo(e) {
+                const electron = e.target;
+                electronInfo.innerHTML = electron.title;
+                electronInfo.style.left = `${e.pageX + 10}px`;
+                electronInfo.style.top = `${e.pageY + 10}px`;
+                electronInfo.style.opacity = '1';
+            }
+            
+            function hideElectronInfo() {
+                electronInfo.style.opacity = '0';
+            }
+            
+            // Initialize electron hover events
+            document.querySelectorAll('.electron').forEach(electron => {
+                electron.addEventListener('mouseenter', showElectronInfo);
+                electron.addEventListener('mouseleave', hideElectronInfo);
+            });
+        });
+    </script>
+</body>
+</html>
